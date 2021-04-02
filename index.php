@@ -119,7 +119,7 @@ if(isset($_GET['output']) && strtolower($_GET['output']) == "json")
 </nav>
 
 <br><br>
-+
+
 <div class="card m-1">
   <h5 class="card-header">Backup space statistics</h5>
   <div class="card-body">
