@@ -1,0 +1,10 @@
+{
+    "BackupDisks": [
+        "/dev/sda1",
+        "/dev/sda2"
+    ],
+    "BackupDirs": [
+        "/mnt/backup/dir1", 
+        "/mnt/backup/dir2"
+    ]
+}
