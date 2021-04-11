@@ -39,14 +39,15 @@ Example: [config-example.json](config-example.json)
             "spaceSize": "1.8TB",
             "backupSize": "559GB",
             "usage": "33%",
-            "state": "OK",
+            "state": "Ok",
             "statePic": "✔️"
         },
         ...
     ],
     "BackupStats": [
         {
-            "/mnt/backup/disk1": [
+            "directory": "/mnt/backup/disk1",
+            "backups": [
                 {
                     "timestamp": "02.04.2021 03:00:02",
                     "type": "current mirror"
@@ -56,10 +57,11 @@ Example: [config-example.json](config-example.json)
                     "type": "incremental"
                 },
                 ...
-             ]
+            ],
+            "state": "Ok",
+            "statePic": "✔️"
         },
         ...
     ]
 }
-        
 ```

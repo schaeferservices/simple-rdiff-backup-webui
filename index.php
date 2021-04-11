@@ -28,17 +28,19 @@ foreach($BackupDisks as $BackupDisk)
     }
     else
     {
-        $state = "OK";
+        $state = "Ok";
     }
 
-    $BackupDiskStats[] = array( 'device' => $result[0],
-                                'point'   => $result[5],
-                                'spaceSize' => $result[1] . "B",
-                                'backupSize'  => $result[2] . "B",
-                                'usage' => $BackupUsage . "%",
-                                'state' => $state,
-                                'statePic' => ($state == "OK" ? "✔️" : ($state == "Warning" ? "⚠️" : ($state == "Critical" ? "❌" : $state)))
-                                );
+    $BackupDiskStats[] = array
+    ( 
+        'device' => $result[0],
+        'point'   => $result[5],
+        'spaceSize' => $result[1] . "B",
+        'backupSize'  => $result[2] . "B",
+        'usage' => $BackupUsage . "%",
+        'state' => $state,
+        'statePic' => ($state == "Ok" ? "✔️" : ($state == "Warning" ? "⚠️" : ($state == "Critical" ? "❌" : $state)))
+    );
 
     unset($arr, $result);
 }
@@ -53,7 +55,8 @@ for($i=0; $i < count($BackupDirs); $i++)
     foreach($arr as $a)
     {
         $result = explode(" ", $a)[0];
-        array_push($Backups, array(
+        array_push($Backups, array
+        (
             'timestamp' => date("I", intval($a)) == 0 ? gmdate("d.m.Y H:i:s", intval($a)+3600) : gmdate("d.m.Y H:i:s", intval($a)+7200),
             'type' => "incremental"
         ));
@@ -64,7 +67,8 @@ for($i=0; $i < count($BackupDirs); $i++)
     $Backups[count($Backups)-1]['type'] = "current mirror";
     $lastBackup = date_diff(date_create_from_format("d.m.Y H:i:s", $Backups[count($Backups)-1]['timestamp']), new DateTime)->format("%a");
 
-    $BackupStat = array(
+    $BackupStat = array
+    (
         'directory' => $BackupDirs[$i],
         'backups' => array_reverse($Backups),
         'state' => ($lastBackup > 1 ? "Critical" : ($lastBackup == 1 ? "Warning" : "Ok")),
@@ -79,9 +83,11 @@ for($i=0; $i < count($BackupDirs); $i++)
 if(isset($_GET['output']) && strtolower($_GET['output']) == "json")
 {
     header('Content-type:application/json;charset=utf-8');
-    $JsonStat[] = array(    'BackupDiskStats' => $BackupDiskStats,
-                            'BackupStats' => $BackupStats
-                            );
+    $JsonStat[] = array
+    (    
+        'BackupDiskStats' => $BackupDiskStats,
+        'BackupStats' => $BackupStats
+    );
 
     echo substr(substr(json_encode($JsonStat), 1), 0, -1);
     exit();
