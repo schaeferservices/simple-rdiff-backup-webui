@@ -65,3 +65,40 @@ Example: [config-example.json](config-example.json)
     ]
 }
 ```
+
+## Use check_backup.py icinga2 check script
+### Requirements
+* python-2.7.x with *argparse*, *sys* and *requests* enabled
+
+### Arguments
+| Argument            | Description
+| --------------------|----------------------------------------------------------------------
+| `--host` / `-H`     | **Required.** Host the backup web-instance is running on.
+| `--port` / `-P`     | Port SSIT Backup is running on (default: 80).
+| `--protocol`        | Choose either HTTP or HTTPS. Default: HTTP
+| `--disks` / `-D`    | Get status of backup disks. Mutually exclusive to `--backups`
+| `--backups` / `-B`  | Get status of backups. Mutually exclusive to `--disks`
+
+### Icinga 2 CheckCommand
+```
+object CheckCommand "backup" {
+    import "plugin-check-command"
+    command = [ PluginDir + "/check_backup.py" ]
+    arguments += {
+        "--protocol" = "$backup_protocol$"
+        "--host" = "$backup_host$"
+        "--port" = "$backup_port$"
+        "--disks" = {
+		description = "Status of backup disks"
+		set_if = "$backup_disks$"
+		}
+        "--backups" = {
+		description = "Status of backups"
+		set_if = "$backup_backups$"
+		}
+    }
+    vars.backup_host = "$address$"
+    vars.backup_disks = false
+    vars.backup_backups = false
+}
+```
