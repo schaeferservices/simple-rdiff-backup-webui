@@ -49,21 +49,31 @@ for($i=0; $i < count($BackupDirs); $i++)
 {
     exec("sudo rdiff-backup -l --parsable-output " . $BackupDirs[$i], $arr);
 
+    $Backups = [];
     foreach($arr as $a)
     {
         $result = explode(" ", $a)[0];
-        $BackupStat[] = array(  'timestamp' => date("I", intval($a)) == 0 ? gmdate("d.m.Y H:i:s", intval($a)+3600) : gmdate("d.m.Y H:i:s", intval($a)+7200),
-                                'type' => "incremental"
-                                );
+        array_push($Backups, array(
+            'timestamp' => date("I", intval($a)) == 0 ? gmdate("d.m.Y H:i:s", intval($a)+3600) : gmdate("d.m.Y H:i:s", intval($a)+7200),
+            'type' => "incremental"
+        ));
 
         unset($a);
     }
 
-    $BackupStat[count($BackupStat)-1]['type'] = "current mirror";
+    $Backups[count($Backups)-1]['type'] = "current mirror";
+    $lastBackup = date_diff(date_create_from_format("d.m.Y H:i:s", $Backups[count($Backups)-1]['timestamp']), new DateTime)->format("%a");
 
-    $BackupStats[] = array($BackupDirs[$i] => array_reverse($BackupStat));
+    $BackupStat = array(
+        'directory' => $BackupDirs[$i],
+        'backups' => array_reverse($Backups),
+        'state' => ($lastBackup > 1 ? "Critical" : ($lastBackup == 1 ? "Warning" : "Ok")),
+        'statePic' => ($lastBackup > 1 ? "❌" : ($lastBackup == 1 ? "⚠️" : "✔️"))
+    );
 
-    unset($arr, $BackupStat);
+    array_push($BackupStats, $BackupStat);
+
+    unset($arr, $BackupStat, $Backups);
 }
 
 if(isset($_GET['output']) && strtolower($_GET['output']) == "json")
@@ -162,10 +172,9 @@ if(isset($_GET['output']) && strtolower($_GET['output']) == "json")
 
 foreach($BackupStats as $num => $BackupStat)
 {
-    $lastBackup = date_diff(date_create_from_format("d.m.Y H:i:s", $BackupStat[array_key_first($BackupStat)][0]['timestamp']), new DateTime)->format("%a");
     echo "  <div class=\"card m-1\">
             <div class=\"card-header\">
-            <h5 style=\"padding: 0; margin: 0; display: inline-block; vertical-align: middle;\">" . array_key_first($BackupStat) . "</h5><h5 style=\"padding: 0; margin: 0; display: inline-block; vertical-align: middle; float: right;\">" . ($lastBackup > 1 ? "❌" : ($lastBackup == 1 ? "⚠️" : "✔️")) . "</h5>
+            <h5 style=\"padding: 0; margin: 0; display: inline-block; vertical-align: middle;\">" . $BackupStat['directory'] . "</h5><h5 style=\"padding: 0; margin: 0; display: inline-block; vertical-align: middle; float: right;\">" . $BackupStat['statePic'] . "</h5>
             </div>
             <div class=\"card-body\">
             <table class=\"table table-hover table-dark tableBodyScroll\" max-height=\"1\">
@@ -177,7 +186,7 @@ foreach($BackupStats as $num => $BackupStat)
             </thead>
             <tbody>\n";
 
-            foreach($BackupStat[array_key_first($BackupStat)] as $Backup)
+            foreach($BackupStat['backups'] as $Backup)
             {
                 echo "\t\t\t\t<tr>\n";
                 echo "\t\t\t\t\t<td>" . $Backup["timestamp"] . "</td>\n";
