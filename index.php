@@ -210,6 +210,14 @@ foreach($BackupStats as $num => $BackupStat)
                 <div class=\"card-group\">";
     }
 }
+    
+if(count($BackupStats) % 4 != 0)
+{
+    for($i = 0; $i < count($BackupStats) % 4; $i++)
+    {
+        echo "<div class=\"card m-1\" style=\"visibility: hidden;\"></div>";
+    }
+}
 
 ?>
 </div>
